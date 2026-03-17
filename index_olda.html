@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urban Accessibility · P.O.V. Framework</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&family=DM+Mono:wght@400&display=swap');
+
+:root {
+  --bg:      #f5f4f0;
+  --surface: #ffffff;
+  --border:  #e0ddd8;
+  --text:    #1a1a1a;
+  --muted:   #777;
+  --accent:  #2563eb;
+  --inclusion: #4caf50;
+  --spatial:   #2196f3;
+  --social:    #ffc107;
+  --total:     #f44336;
+  --font-head: 'DM Serif Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-body); overflow: hidden; }
+
+/* ── Header ── */
+header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 20px; height: 52px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  position: relative; z-index: 20;
+}
+header h1 { font-family: var(--font-head); font-size: 1.05rem; letter-spacing: .01em; }
+header h1 span { color: var(--accent); }
+#header-sub { font-size: .78rem; color: var(--muted); border-left: 1px solid var(--border); padding-left: 12px; }
+#back-btn {
+  margin-left: auto;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); font-family: var(--font-body); font-size: .8rem;
+  padding: 4px 12px; cursor: pointer; display: none;
+}
+#back-btn:hover { background: var(--bg); }
+#repo-link { font-size: .78rem; color: var(--accent); text-decoration: none; margin-left: auto; }
+#repo-link:hover { text-decoration: underline; }
+
+/* ── App shell ── */
+#app { height: calc(100vh - 52px); position: relative; }
+
+/* ══════════════════════════════════════
+   LANDING VIEW
+══════════════════════════════════════ */
+#view-landing {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  height: 100%;
+}
+
+/* Side panel */
+#landing-side {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  padding: 14px 12px;
+  gap: 10px;
+  overflow: hidden;
+}
+.panel-title { font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+
+.search-row { display: flex; gap: 6px; }
+.search-row input {
+  flex: 1; padding: 6px 10px;
+  border: 1px solid var(--border); border-radius: 6px;
+  font-family: var(--font-body); font-size: .82rem; color: var(--text);
+  background: var(--bg); outline: none;
+}
+.search-row input:focus { border-color: var(--accent); }
+.search-row button {
+  padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); cursor: pointer; font-size: .8rem; color: var(--muted);
+}
+.search-row button:hover { background: var(--bg); }
+
+#city-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
+.city-card {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 10px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 7px;
+  cursor: pointer; transition: background .12s, border-color .12s;
+  flex-shrink: 0;
+}
+.city-card:hover { background: #eef2ff; border-color: #c7d2fe; }
+.city-card strong { font-size: .85rem; }
+.city-card .arrow { color: var(--muted); font-size: .9rem; }
+
+.landing-hint {
+  font-size: .72rem; color: var(--muted); line-height: 1.5;
+  border-top: 1px solid var(--border); padding-top: 10px; margin-top: 2px;
+}
+
+/* Landing map */
+#landing-map { width: 100%; height: 100%; position: relative; }
+
+/* Info box over landing map */
+.info-box {
+  position: absolute; top: 14px; left: 14px; z-index: 1000;
+  max-width: 300px; padding: 10px 12px;
+  background: rgba(255,255,255,.93);
+  border: 1px solid var(--border); border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+  font-size: .82rem; line-height: 1.45;
+  backdrop-filter: blur(4px);
+}
+.info-box b { display: block; font-size: .88rem; margin-bottom: 4px; color: var(--text); }
+
+/* ══════════════════════════════════════
+   CITY VIEW
+══════════════════════════════════════ */
+#view-city {
+  display: none;
+  grid-template-columns: 240px 1fr 1fr;
+  height: 100%;
+}
+
+/* Sidebar */
+#city-sidebar {
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; padding: 14px 12px; gap: 16px; overflow-y: auto;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: .78rem; margin-bottom: 5px; cursor: pointer;
+  border-radius: 5px; padding: 4px 6px; transition: background .12s;
+}
+.legend-item:hover { background: rgba(0,0,0,.04); }
+.legend-item.hidden { opacity: .3; }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.stat-row { display: flex; justify-content: space-between; align-items: baseline; font-size: .75rem; margin-bottom: 4px; }
+.stat-label { color: var(--muted); }
+.stat-value { font-family: var(--font-mono); font-size: .78rem; }
+#info-box {
+  background: rgba(37,99,235,.05); border: 1px solid rgba(37,99,235,.15);
+  border-radius: 8px; padding: 10px 12px; font-size: .75rem; line-height: 1.5; min-height: 100px;
+}
+#info-box .info-title { font-family: var(--font-mono); font-size: .7rem; color: var(--accent); margin-bottom: 5px; }
+#info-box .info-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+#info-box .info-key { color: var(--muted); }
+#info-box .info-val { font-family: var(--font-mono); }
+#info-box .no-sel { color: var(--muted); font-style: italic; }
+
+/* Map panel */
+#map-panel { position: relative; overflow: hidden; border-right: 1px solid var(--border); }
+#city-map  { position: absolute; inset: 0; z-index: 0; }
+#map-canvas {
+  position: absolute; inset: 0; z-index: 1;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+/* Scatter panel */
+#scatter-panel { position: relative; overflow: hidden; background: var(--bg); }
+#scatter-svg { width: 100%; height: 100%; display: block; }
+
+/* Panel labels */
+.panel-label {
+  position: absolute; top: 10px; left: 12px; z-index: 10;
+  font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: #666;
+  background: rgba(255,255,255,.85); padding: 2px 7px; border-radius: 4px;
+  pointer-events: none;
+}
+
+/* Shared */
+.leaflet-control-attribution { font-size: 9px !important; opacity: .6; }
+#tooltip {
+  position: fixed; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 7px 11px; font-size: .72rem;
+  pointer-events: none; opacity: 0; transition: opacity .12s;
+  z-index: 2000; line-height: 1.55; max-width: 190px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+}
+#tooltip.visible { opacity: 1; }
+#tooltip strong { display: block; font-family: var(--font-mono); color: var(--accent); margin-bottom: 2px; text-transform: capitalize; }
+#loading {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: .85rem; color: var(--muted);
+  z-index: 9999; transition: opacity .4s;
+}
+#loading.fade { opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<div id="loading">Loading…</div>
+<div id="tooltip"></div>
+
+<header>
+  <h1>Urban Accessibility <span>P.O.V.</span></h1>
+  <span id="header-sub">Proximity · Opportunity · Value</span>
+  <button id="back-btn">← All cities</button>
+  <a id="repo-link" href="https://github.com/matteobru/accessibility-viz" target="_blank" rel="noopener">GitHub</a>
+</header>
+
+<div id="app">
+
+  <!-- ── LANDING VIEW ── -->
+  <div id="view-landing">
+    <div id="landing-side">
+      <div>
+        <p class="panel-title">Cities</p>
+        <div class="search-row">
+          <input id="search-input" type="search" placeholder="Search…"/>
+          <button id="search-clear">✕</button>
+        </div>
+      </div>
+      <div id="city-list"></div>
+      <p class="landing-hint">Click a city name or map pin to explore its accessibility cartogram and scatter plot.</p>
+    </div>
+    <div id="landing-map">
+      <div class="info-box">
+        <b>Urban Accessibility P.O.V.</b>
+        Each city is mapped across two dimensions: <b>Proximity</b> (walkable local services) and <b>Opportunity</b> (fast transit reach). Click any pin or city name to explore.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CITY VIEW ── -->
+  <div id="view-city">
+    <aside id="city-sidebar">
+      <div>
+        <p class="panel-title">Zone type</p>
+        <div class="legend-item" data-type="inclusion">
+          <div class="legend-dot" style="background:var(--inclusion)"></div><span>Inclusion</span>
+        </div>
+        <div class="legend-item" data-type="spatial isolation">
+          <div class="legend-dot" style="background:var(--spatial)"></div><span>Spatial Isolation</span>
+        </div>
+        <div class="legend-item" data-type="social isolation">
+          <div class="legend-dot" style="background:var(--social)"></div><span>Social Isolation</span>
+        </div>
+        <div class="legend-item" data-type="total isolation">
+          <div class="legend-dot" style="background:var(--total)"></div><span>Total Isolation</span>
+        </div>
+      </div>
+      <div>
+        <p class="panel-title">City summary</p>
+        <div class="stat-row"><span class="stat-label">Hexagons</span><span class="stat-value" id="s-hex">—</span></div>
+        <div class="stat-row"><span class="stat-label">Median proximity</span><span class="stat-value" id="s-prox">—</span></div>
+        <div class="stat-row"><span class="stat-label">Median opportunity</span><span class="stat-value" id="s-opp">—</span></div>
+        <div class="stat-row"><span class="stat-label">Inclusion %</span><span class="stat-value" id="s-inc">—</span></div>
+      </div>
+      <div>
+        <p class="panel-title">Selected hexagon</p>
+        <div id="info-box"><p class="no-sel">Click any hexagon or scatter point.</p></div>
+      </div>
+      <div style="margin-top:auto">
+        <p class="panel-title">Interactions</p>
+        <p style="font-size:.72rem;color:var(--muted);line-height:1.5">Hover or click to cross-highlight.<br>Scroll & drag to navigate.<br>Click legend to toggle types.</p>
+      </div>
+    </aside>
+
+    <div id="map-panel">
+      <span class="panel-label">Cartogram</span>
+      <div id="city-map"></div>
+      <canvas id="map-canvas"></canvas>
+    </div>
+
+    <div id="scatter-panel">
+      <span class="panel-label">Scatter · Proximity vs Opportunity</span>
+      <svg id="scatter-svg"></svg>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIG
+// City name → GeoJSON path (WGS84, reprojected). Adjust paths to match your setup.
+// ─────────────────────────────────────────────────────────────────────────────
+const CITY_FILES = {
+  "Barcelona":  "data/barcelona_cartogram.geojson",
+  "Paris":      "data/paris_cartogram.geojson",
+  "Rome":       "data/rome_cartogram.geojson",
+  "Milan":      "data/milan_cartogram.geojson",
+  "New York":   "data/new_york_cartogram.geojson",
+  "Nantes":     "data/nantes_cartogram.geojson",
+  "Bordeaux":   "data/bordeaux_cartogram.geojson",
+  "Berlin":     "data/berlin_cartogram.geojson",
+  "Seattle":    "data/seattle_cartogram.geojson",
+  "Málaga":     "data/malaga_cartogram.geojson",
+  "Munich":     "data/munich_cartogram.geojson",
+  "Vienna":     "data/vienna_cartogram.geojson",
+  "Zurich":     "data/zurich_cartogram.geojson",
+  "Karlsruhe":  "data/karlsruhe_cartogram.geojson",
+  "Stockholm":  "data/stockholm_cartogram.geojson",
+  "Porto":      "data/porto_cartogram.geojson",
+  "Chicago":    "data/chicago_cartogram.geojson",
+  "Valencia":   "data/valencia_cartogram.geojson",
+};
+
+// Approximate city centers for the landing map pins
+const CITY_CENTERS = {
+  "Barcelona":  [41.385, 2.173],
+  "Paris":      [48.857, 2.352],
+  "Rome":       [41.903, 12.496],
+  "Milan":      [45.464, 9.190],
+  "New York":   [40.713, -74.006],
+  "Nantes":     [47.218, -1.554],
+  "Bordeaux":   [44.838, -0.579],
+  "Berlin":     [52.520, 13.405],
+  "Seattle":    [47.606, -122.332],
+  "Málaga":     [36.721, -4.421],
+  "Munich":     [48.135, 11.582],
+  "Vienna":     [48.208, 16.374],
+  "Zurich":     [47.377, 8.542],
+  "Karlsruhe":  [49.007, 8.404],
+  "Stockholm":  [59.329, 18.069],
+  "Porto":      [41.158, -8.629],
+  "Chicago":    [41.878, -87.630],
+  "Valencia":   [39.470, -0.376],
+};
+
+const ALL_CITIES = Object.keys(CITY_FILES);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+let features    = [];
+let selectedId  = null;
+let hoveredId   = null;
+let hiddenTypes = new Set();
+
+const HEX_ALPHA     = 0.8;
+const HEX_ALPHA_DIM = 0.15;
+
+const TYPE_COLOR = {
+  "inclusion":         "#4caf50",
+  "spatial isolation": "#2196f3",
+  "social isolation":  "#ffc107",
+  "total isolation":   "#f44336",
+};
+const TYPE_COLOR_DIM = {
+  "inclusion":         "#c8e6c9",
+  "spatial isolation": "#bbdefb",
+  "social isolation":  "#fff9c4",
+  "total isolation":   "#ffcdd2",
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LANDING MAP
+// ─────────────────────────────────────────────────────────────────────────────
+const landingMap = L.map("landing-map", { zoomControl: false })
+  .setView([30, 10], 2);
+L.control.zoom({ position: "bottomright" }).addTo(landingMap);
+
+L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+  attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+  subdomains: "abcd", maxZoom: 19,
+}).addTo(landingMap);
+
+// Add city pins
+const landingMarkers = [];
+ALL_CITIES.forEach(city => {
+  const center = CITY_CENTERS[city];
+  if (!center) return;
+  const marker = L.circleMarker(center, {
+    radius: 7, color: "#2563eb", weight: 2,
+    fillColor: "#2563eb", fillOpacity: 0.25,
+  }).addTo(landingMap);
+  marker.bindTooltip(`<b>${city}</b>`, { direction: "top", sticky: false });
+  marker.on("click", () => goCity(city));
+  landingMarkers.push(marker);
+});
+
+// Fit to all pins
+try {
+  const group = L.featureGroup(landingMarkers);
+  landingMap.fitBounds(group.getBounds().pad(0.15));
+} catch(e) {}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CITY LIST (sidebar)
+// ─────────────────────────────────────────────────────────────────────────────
+function renderCityList(filter = "") {
+  const q   = filter.trim().toLowerCase();
+  const el  = document.getElementById("city-list");
+  el.innerHTML = "";
+  ALL_CITIES
+    .filter(c => !q || c.toLowerCase().includes(q))
+    .forEach(city => {
+      const card = document.createElement("div");
+      card.className = "city-card";
+      card.innerHTML = `<strong>${city}</strong><span class="arrow">›</span>`;
+      card.onclick = () => goCity(city);
+      el.appendChild(card);
+    });
+}
+renderCityList();
+
+document.getElementById("search-input").addEventListener("input", e => renderCityList(e.target.value));
+document.getElementById("search-clear").addEventListener("click", () => {
+  document.getElementById("search-input").value = "";
+  renderCityList();
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CITY MAP (Leaflet + Canvas overlay)
+// ─────────────────────────────────────────────────────────────────────────────
+let cityLeaflet = null;
+
+function initCityMap() {
+  if (cityLeaflet) return;
+  cityLeaflet = L.map("city-map", { zoomControl: false }).setView([0, 0], 2);
+  L.control.zoom({ position: "bottomright" }).addTo(cityLeaflet);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+    attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+    subdomains: "abcd", maxZoom: 19,
+  }).addTo(cityLeaflet);
+  cityLeaflet.on("move zoom moveend zoomend", redrawCanvas);
+}
+
+const canvas = document.getElementById("map-canvas");
+const ctx    = canvas.getContext("2d");
+
+function resizeCanvas() {
+  const r = document.getElementById("map-panel").getBoundingClientRect();
+  canvas.width        = r.width  * devicePixelRatio;
+  canvas.height       = r.height * devicePixelRatio;
+  canvas.style.width  = r.width  + "px";
+  canvas.style.height = r.height + "px";
+}
+
+function project(lng, lat) {
+  const pt = cityLeaflet.latLngToContainerPoint(L.latLng(lat, lng));
+  return [pt.x * devicePixelRatio, pt.y * devicePixelRatio];
+}
+
+function drawCanvas() {
+  if (!cityLeaflet) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (const f of features) {
+    const p    = f.properties;
+    const type = p.type;
+    const isH   = hiddenTypes.has(type);
+    const isHov = p.id === hoveredId;
+    const isSel = p.id === selectedId;
+
+    const color = isSel ? "#111"
+                : isH   ? TYPE_COLOR_DIM[type]
+                :          TYPE_COLOR[type];
+    const alpha = isSel || isHov ? 1.0
+                : isH            ? HEX_ALPHA_DIM
+                :                  HEX_ALPHA;
+
+    for (const ring of f.geometry.coordinates) {
+      ctx.beginPath();
+      for (let j = 0; j < ring.length; j++) {
+        const [x, y] = project(ring[j][0], ring[j][1]);
+        j === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle   = color;
+      ctx.fill();
+      ctx.globalAlpha = isSel ? 0.9 : isHov ? 0.65 : 0.22;
+      ctx.strokeStyle = isSel || isHov ? "#333" : "rgba(255,255,255,.7)";
+      ctx.lineWidth   = isSel ? 2 * devicePixelRatio : 0.6 * devicePixelRatio;
+      ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+function redrawCanvas() { resizeCanvas(); drawCanvas(); }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HIT TEST
+// ─────────────────────────────────────────────────────────────────────────────
+function hitTest(clientX, clientY) {
+  const px = clientX * devicePixelRatio;
+  const py = clientY * devicePixelRatio;
+  for (let i = features.length - 1; i >= 0; i--) {
+    for (const ring of features[i].geometry.coordinates) {
+      let inside = false;
+      for (let j = 0, k = ring.length - 1; j < ring.length; k = j++) {
+        const [xi, yi] = project(ring[j][0], ring[j][1]);
+        const [xk, yk] = project(ring[k][0], ring[k][1]);
+        if (((yi > py) !== (yk > py)) && (px < (xk - xi) * (py - yi) / (yk - yi) + xi))
+          inside = !inside;
+      }
+      if (inside) return features[i];
+    }
+  }
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CANVAS EVENTS
+// ─────────────────────────────────────────────────────────────────────────────
+// We listen on the Leaflet map container for hex interactions.
+// The canvas has pointer-events:none so Leaflet pan/zoom works normally.
+// We use mousemove/click on the map-panel to do hit-testing on the canvas coords.
+const mapPanel = document.getElementById("map-panel");
+
+mapPanel.addEventListener("mousemove", e => {
+  if (!cityLeaflet) return;
+  const r   = canvas.getBoundingClientRect();
+  const hit = hitTest(e.clientX - r.left, e.clientY - r.top);
+  const newId = hit ? hit.properties.id : null;
+  if (newId !== hoveredId) {
+    hoveredId = newId;
+    hit ? showTooltip(e, hit) : hideTooltip();
+    refreshDots(); drawCanvas();
+  } else if (hit) {
+    tooltip.style.left = (e.clientX + 14) + "px";
+    tooltip.style.top  = (e.clientY - 10) + "px";
+  }
+});
+mapPanel.addEventListener("mouseleave", () => {
+  hoveredId = null; hideTooltip(); refreshDots(); drawCanvas();
+});
+mapPanel.addEventListener("click", e => {
+  if (!cityLeaflet) return;
+  const r = canvas.getBoundingClientRect();
+  const hit = hitTest(e.clientX - r.left, e.clientY - r.top);
+  if (hit) selectFeature(hit);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCATTER
+// ─────────────────────────────────────────────────────────────────────────────
+const scatterSVG  = document.getElementById("scatter-svg");
+const M = { top: 40, right: 30, bottom: 52, left: 62 };
+let scatterDots   = [];
+
+function buildScatter() {
+  scatterSVG.innerHTML = "";
+  const W  = scatterSVG.clientWidth  || scatterSVG.getBoundingClientRect().width;
+  const H  = scatterSVG.clientHeight || scatterSVG.getBoundingClientRect().height;
+  const pw = W - M.left - M.right;
+  const ph = H - M.top  - M.bottom;
+  scatterSVG.setAttribute("viewBox", `0 0 ${W} ${H}`);
+
+  const oppVals  = features.map(f => f.properties.opp);
+  const proxVals = features.map(f => f.properties.prox);
+  const maxOpp   = Math.max(...oppVals)  * 1.05;
+  const maxProx  = Math.max(...proxVals) * 1.05;
+  const medOpp   = features[0]?.properties.opp_med  || median(oppVals);
+  const medProx  = features[0]?.properties.prox_med || median(proxVals);
+
+  const sx = v => M.left + (v / maxOpp)  * pw;
+  const sy = v => M.top  + ph - (v / maxProx) * ph;
+  const g  = se("g"); scatterSVG.appendChild(g);
+
+  // Quadrant fills + labels
+  [
+    { x: sx(medOpp), y: M.top,       w: sx(maxOpp) - sx(medOpp), h: sy(medProx) - M.top,       fill: "rgba(76,175,80,.08)",  label: "Inclusion" },
+    { x: M.left,     y: M.top,       w: sx(medOpp) - M.left,     h: sy(medProx) - M.top,       fill: "rgba(33,150,243,.08)", label: "Spatial Isolation" },
+    { x: sx(medOpp), y: sy(medProx), w: sx(maxOpp) - sx(medOpp), h: M.top + ph - sy(medProx),  fill: "rgba(255,193,7,.08)",  label: "Social Isolation" },
+    { x: M.left,     y: sy(medProx), w: sx(medOpp) - M.left,     h: M.top + ph - sy(medProx),  fill: "rgba(244,67,54,.08)",  label: "Total Isolation" },
+  ].forEach(q => {
+    g.appendChild(se("rect", { x: q.x, y: q.y, width: q.w, height: q.h, fill: q.fill }));
+    const t = se("text", {
+      x: q.x + q.w / 2, y: q.y + q.h / 2,
+      "text-anchor": "middle", "dominant-baseline": "middle",
+      fill: "rgba(0,0,0,.18)", "font-size": "11", "font-family": "DM Sans",
+    });
+    t.textContent = q.label; g.appendChild(t);
+  });
+
+  // Median lines
+  const md = { stroke: "rgba(0,0,0,.18)", "stroke-width": "1", "stroke-dasharray": "4,3" };
+  g.appendChild(se("line", { x1: sx(medOpp), y1: M.top, x2: sx(medOpp), y2: M.top + ph, ...md }));
+  g.appendChild(se("line", { x1: M.left, y1: sy(medProx), x2: M.left + pw, y2: sy(medProx), ...md }));
+
+  // Axes
+  const ac = "rgba(0,0,0,.13)";
+  g.appendChild(se("line", { x1: M.left, y1: M.top,    x2: M.left,    y2: M.top + ph, stroke: ac, "stroke-width": "1" }));
+  g.appendChild(se("line", { x1: M.left, y1: M.top+ph, x2: M.left+pw, y2: M.top + ph, stroke: ac, "stroke-width": "1" }));
+
+  for (let i = 0; i <= 4; i++) {
+    const v = maxOpp * i / 4, x = sx(v);
+    g.appendChild(se("line", { x1: x, y1: M.top+ph, x2: x, y2: M.top+ph+4, stroke: ac }));
+    const t = se("text", { x, y: M.top+ph+14, "text-anchor": "middle", fill: "rgba(0,0,0,.4)", "font-size": "9" });
+    t.textContent = fmtK(v); g.appendChild(t);
+  }
+  for (let i = 0; i <= 4; i++) {
+    const v = maxProx * i / 4, y = sy(v);
+    g.appendChild(se("line", { x1: M.left-4, y1: y, x2: M.left, y2: y, stroke: ac }));
+    const t = se("text", { x: M.left-7, y, "text-anchor": "end", "dominant-baseline": "middle", fill: "rgba(0,0,0,.4)", "font-size": "9" });
+    t.textContent = fmtK(v); g.appendChild(t);
+  }
+
+  const xl = se("text", { x: M.left+pw/2, y: H-8, "text-anchor": "middle", fill: "rgba(0,0,0,.45)", "font-size": "10" });
+  xl.textContent = "Opportunity Score"; g.appendChild(xl);
+  const yl = se("text", { x: 12, y: M.top+ph/2, "text-anchor": "middle", fill: "rgba(0,0,0,.45)", "font-size": "10",
+    transform: `rotate(-90,12,${M.top+ph/2})` });
+  yl.textContent = "Proximity Score"; g.appendChild(yl);
+
+  scatterDots = [];
+  for (const f of features) {
+    const p = f.properties;
+    const c = se("circle", {
+      cx: sx(p.opp), cy: sy(p.prox), r: 4,
+      fill: TYPE_COLOR[p.type] || "#888", "fill-opacity": "0.8",
+      stroke: "none", "stroke-width": "1.5", style: "cursor:pointer;transition:r .1s",
+    });
+    g.appendChild(c);
+    scatterDots.push({ feat: f, el: c });
+    c.addEventListener("mouseenter", e => { hoveredId = p.id; showTooltip(e, f); drawCanvas(); refreshDots(); });
+    c.addEventListener("mouseleave", () => { hoveredId = null; hideTooltip(); drawCanvas(); refreshDots(); });
+    c.addEventListener("click", () => selectFeature(f));
+  }
+}
+
+function refreshDots() {
+  for (const d of scatterDots) {
+    const pid  = d.feat.properties.id;
+    const isSel = pid === selectedId, isHov = pid === hoveredId;
+    d.el.setAttribute("r",            isSel ? 7 : isHov ? 6 : 4);
+    d.el.setAttribute("stroke",       isSel ? "#333" : isHov ? "rgba(0,0,0,.45)" : "none");
+    d.el.setAttribute("fill-opacity", isSel || isHov ? "1" : "0.8");
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SELECTION & INFO
+// ─────────────────────────────────────────────────────────────────────────────
+function selectFeature(f) {
+  selectedId = f ? f.properties.id : null;
+  updateInfoBox(f); refreshDots(); drawCanvas();
+}
+
+function updateInfoBox(f) {
+  const box = document.getElementById("info-box");
+  if (!f) { box.innerHTML = '<p class="no-sel">Click any hexagon or scatter point.</p>'; return; }
+  const p = f.properties;
+  box.innerHTML = `
+    <p class="info-title">Hexagon #${p.id}</p>
+    <div class="info-row"><span class="info-key">Type</span>
+      <span class="info-val" style="color:${TYPE_COLOR[p.type]};text-transform:capitalize">${p.type}</span></div>
+    <div class="info-row"><span class="info-key">Proximity</span><span class="info-val">${fmtK(p.prox)}</span></div>
+    <div class="info-row"><span class="info-key">Opportunity</span><span class="info-val">${fmtK(p.opp)}</span></div>
+    <div class="info-row"><span class="info-key">Population</span><span class="info-val">${Math.round(p.pop).toLocaleString()}</span></div>
+    <div class="info-row"><span class="info-key">Median prox</span><span class="info-val">${fmtK(p.prox_med)}</span></div>
+    <div class="info-row"><span class="info-key">Median opp</span><span class="info-val">${fmtK(p.opp_med)}</span></div>`;
+}
+
+function updateCityStats() {
+  const n      = features.length;
+  const proxes = features.map(f => f.properties.prox).sort((a, b) => a - b);
+  const opps   = features.map(f => f.properties.opp).sort((a, b) => a - b);
+  const incN   = features.filter(f => f.properties.type === "inclusion").length;
+  document.getElementById("s-hex").textContent  = n;
+  document.getElementById("s-prox").textContent = fmtK(proxes[Math.floor(n / 2)]);
+  document.getElementById("s-opp").textContent  = fmtK(opps[Math.floor(n / 2)]);
+  document.getElementById("s-inc").textContent  = (incN / n * 100).toFixed(1) + "%";
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TOOLTIP
+// ─────────────────────────────────────────────────────────────────────────────
+const tooltip = document.getElementById("tooltip");
+function showTooltip(e, f) {
+  const p = f.properties;
+  tooltip.innerHTML = `<strong>${p.type}</strong>Proximity: ${fmtK(p.prox)}<br>Opportunity: ${fmtK(p.opp)}<br>Population: ${Math.round(p.pop).toLocaleString()}`;
+  tooltip.classList.add("visible");
+  tooltip.style.left = (e.clientX + 14) + "px";
+  tooltip.style.top  = (e.clientY - 10) + "px";
+}
+function hideTooltip() { tooltip.classList.remove("visible"); }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LEGEND TOGGLES
+// ─────────────────────────────────────────────────────────────────────────────
+document.querySelectorAll(".legend-item").forEach(el => {
+  el.addEventListener("click", () => {
+    const type = el.dataset.type;
+    hiddenTypes.has(type) ? hiddenTypes.delete(type) : hiddenTypes.add(type);
+    el.classList.toggle("hidden");
+    drawCanvas();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ROUTING  (hash-based, same pattern as CDI app)
+// ─────────────────────────────────────────────────────────────────────────────
+function goCity(city) { location.hash = "#/city/" + encodeURIComponent(city); }
+function goHome()     { location.hash = "#/"; }
+
+document.getElementById("back-btn").addEventListener("click", goHome);
+
+async function router() {
+  const hash = location.hash || "#/";
+
+  if (hash.startsWith("#/city/")) {
+    const city = decodeURIComponent(hash.split("/city/")[1] || "");
+    if (!city || !CITY_FILES[city]) { goHome(); return; }
+    await showCityView(city);
+  } else {
+    showLandingView();
+  }
+}
+
+function showLandingView() {
+  document.getElementById("view-landing").style.display = "grid";
+  document.getElementById("view-city").style.display   = "none";
+  document.getElementById("back-btn").style.display    = "none";
+  document.getElementById("repo-link").style.display   = "";
+  document.getElementById("header-sub").textContent    = "Proximity · Opportunity · Value";
+  // invalidate landing map in case it was hidden
+  setTimeout(() => landingMap.invalidateSize(), 50);
+}
+
+async function showCityView(city) {
+  // 1. Flip DOM visibility FIRST — browser needs to paint this before
+  //    Leaflet can measure the container size.
+  document.getElementById("view-landing").style.display = "none";
+  document.getElementById("view-city").style.display    = "grid";
+  document.getElementById("back-btn").style.display     = "";
+  document.getElementById("repo-link").style.display    = "none";
+  document.getElementById("header-sub").textContent     = city;
+
+  // 2. Reset UI state immediately
+  features   = [];
+  selectedId = null;
+  hoveredId  = null;
+  hiddenTypes.clear();
+  document.querySelectorAll(".legend-item").forEach(el => el.classList.remove("hidden"));
+  updateInfoBox(null);
+
+  // 3. Fetch GeoJSON (can happen while browser is painting)
+  let loaded = [];
+  try {
+    const res = await fetch(CITY_FILES[city]);
+    if (!res.ok) throw new Error("Failed to load " + CITY_FILES[city]);
+    const gj  = await res.json();
+    loaded = gj.features.map(f => ({
+      type: "Feature",
+      geometry: f.geometry,
+      properties: {
+        id:       f.properties.hexagon_id,
+        pop:      f.properties.population,
+        opp:      f.properties.opportunity,
+        prox:     f.properties.proximity,
+        city:     f.properties.city,
+        type:     f.properties.cell_type,
+        opp_med:  f.properties.opportunity_median_city,
+        prox_med: f.properties.proximity_median_city,
+      }
+    }));
+  } catch(e) {
+    console.error(e);
+    document.getElementById("info-box").innerHTML =
+      `<p style="color:#f44336">Could not load data for ${city}.<br><small>${e.message}</small></p>`;
+    return;
+  }
+
+  // 4. Wait for the browser to actually paint the new layout before touching
+  //    Leaflet — otherwise the container is still 0×0.
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+  // 5. Now the container has real dimensions — safe to init/resize Leaflet.
+  initCityMap();
+  cityLeaflet.invalidateSize({ animate: false });
+
+  features = loaded;
+
+  // 6. Fit map to city bounds
+  const lngs = features.flatMap(f => f.geometry.coordinates.flatMap(r => r.map(p => p[0])));
+  const lats  = features.flatMap(f => f.geometry.coordinates.flatMap(r => r.map(p => p[1])));
+  cityLeaflet.fitBounds(
+    [[Math.min(...lats), Math.min(...lngs)], [Math.max(...lats), Math.max(...lngs)]],
+    { padding: [2, 2], animate: false }
+  );
+
+  // 7. Draw canvas + scatter once Leaflet has settled
+  resizeCanvas();
+  drawCanvas();
+  buildScatter();
+  updateCityStats();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RESIZE
+// ─────────────────────────────────────────────────────────────────────────────
+const ro = new ResizeObserver(() => {
+  if (document.getElementById("view-city").style.display !== "none") {
+    cityLeaflet?.invalidateSize();
+    redrawCanvas();
+    if (features.length) buildScatter();
+  }
+  landingMap?.invalidateSize();
+});
+ro.observe(document.getElementById("app"));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────────────────────────────────────
+function se(tag, attrs = {}) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+function fmtK(v) { return v >= 1000 ? (v / 1000).toFixed(1) + "k" : Math.round(v).toString(); }
+function median(arr) { const s = [...arr].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────────────────────────────────────
+window.addEventListener("hashchange", router);
+window.addEventListener("load", () => {
+  router();
+  setTimeout(() => document.getElementById("loading").classList.add("fade"), 300);
+});
+</script>
+</body>
+</html>

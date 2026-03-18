@@ -11,82 +11,52 @@
 </head>
 <body>
 
-<div id="loading">Loading…</div>
+<div id="loading" data-i18n="loading">Loading…</div>
 <div id="tooltip"></div>
 
 <!-- ── About modal ── -->
 <div id="about-overlay" class="modal-overlay">
   <div class="modal">
     <button class="modal-close" id="about-close" aria-label="Close">&times;</button>
-    <h2>The P.O.V. Framework</h2>
-    <p class="modal-subtitle">Proximity · Opportunity · Value</p>
-
-    <p>This interactive visualisation accompanies the research paper <a href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank" rel="noopener"><em>The dimensions of accessibility: proximity, opportunities, values</em></a> by Bruno, Campanelli, Melo, Rossi Mori &amp; Loreto (EPJ Data Science, 2026).</p>
-
-    <h3>What are Proximity and Opportunity?</h3>
-    <p>Accessibility is not one-dimensional. The framework separates it into two spatial scales:</p>
-
-    <div class="dim-card dim-prox">
-      <strong>Proximity</strong> measures access to everyday services — grocery stores, pharmacies, cafés, schools — reachable <em>on foot</em> within short distances. It captures the richness of local neighbourhood life: how much you can do without leaving your area.
-    </div>
-    <div class="dim-card dim-opp">
-      <strong>Opportunity</strong> measures access to city-scale resources — jobs, universities, stadiums, cultural venues — reachable via <em>public transport</em> within reasonable travel times. It captures how well a neighbourhood is connected to the broader city.
-    </div>
-
-    <h3>The four zones</h3>
-    <p>Each hexagonal cell in a city is classified based on whether its Proximity and Opportunity scores fall above or below the city-wide median:</p>
-
+    <h2 data-i18n="about_title">The P.O.V. Framework</h2>
+    <p class="modal-subtitle" data-i18n="about_subtitle">Proximity · Opportunity · Value</p>
+    <p data-i18n-html="about_intro">This interactive visualisation accompanies the research paper <a href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank" rel="noopener"><em>The dimensions of accessibility: proximity, opportunities, values</em></a> by Bruno, Campanelli, Melo, Rossi Mori &amp; Loreto (EPJ Data Science, 2026).</p>
+    <h3 data-i18n="about_h_prox_opp">What are Proximity and Opportunity?</h3>
+    <p data-i18n="about_prox_opp_intro">Accessibility is not one-dimensional. The framework separates it into two spatial scales:</p>
+    <div class="dim-card dim-prox" data-i18n-html="about_prox_card"><strong>Proximity</strong> measures access to everyday services — grocery stores, pharmacies, cafés, schools — reachable <em>on foot</em> within short distances.</div>
+    <div class="dim-card dim-opp" data-i18n-html="about_opp_card"><strong>Opportunity</strong> measures access to city-scale resources — jobs, universities, stadiums, cultural venues — reachable via <em>public transport</em> within reasonable travel times.</div>
+    <h3 data-i18n="about_h_zones">The four zones</h3>
+    <p data-i18n="about_zones_intro">Each hexagonal cell in a city is classified based on whether its Proximity and Opportunity scores fall above or below the city-wide median:</p>
     <div class="zone-grid">
-      <div class="zone-item">
-        <span class="zone-dot" style="background:#4caf50"></span>
-        <div><strong>Inclusion</strong><br>Above-median in both dimensions. Well-served locally and well-connected globally.</div>
-      </div>
-      <div class="zone-item">
-        <span class="zone-dot" style="background:#2196f3"></span>
-        <div><strong>Spatial Isolation</strong><br>Good local services but poor transit connections. A spatial mismatch — the neighbourhood is lively but disconnected from distant opportunities like specialised jobs.</div>
-      </div>
-      <div class="zone-item">
-        <span class="zone-dot" style="background:#ffc107"></span>
-        <div><strong>Social Isolation</strong><br>Good transit but few local amenities. You can reach the city centre quickly, but lack a walkable neighbourhood with everyday services and community life.</div>
-      </div>
-      <div class="zone-item">
-        <span class="zone-dot" style="background:#f44336"></span>
-        <div><strong>Total Isolation</strong><br>Below-median in both dimensions. Poorly served locally and poorly connected globally — a car is likely essential.</div>
-      </div>
+      <div class="zone-item"><span class="zone-dot" style="background:#4caf50"></span><div data-i18n-html="about_zone_inc"><strong>Inclusion</strong><br>Above-median in both dimensions.</div></div>
+      <div class="zone-item"><span class="zone-dot" style="background:#2196f3"></span><div data-i18n-html="about_zone_spatial"><strong>Spatial Isolation</strong><br>Good local services but poor transit connections.</div></div>
+      <div class="zone-item"><span class="zone-dot" style="background:#ffc107"></span><div data-i18n-html="about_zone_social"><strong>Social Isolation</strong><br>Good transit but few local amenities.</div></div>
+      <div class="zone-item"><span class="zone-dot" style="background:#f44336"></span><div data-i18n-html="about_zone_total"><strong>Total Isolation</strong><br>Below-median in both dimensions.</div></div>
     </div>
-
-    <h3>The third dimension: Value</h3>
-    <p>The paper also theorises a third axis — <strong>Value</strong> — capturing the quality and desirability of reachable services. Two neighbourhoods may have similar proximity scores, but differ vastly in the quality of their schools, restaurants, or healthcare. Value remains difficult to quantify and is not yet measured in this tool, but it is a critical dimension for understanding real-world accessibility.</p>
-
-    <h3>How to read the visualisation</h3>
-    <p>The <strong>cartogram</strong> (left panel) shows the city divided into ~200 m hexagonal cells, coloured by their zone type. The <strong>scatter plot</strong> (right panel) places each hexagon by its Opportunity (x-axis) and Proximity (y-axis) scores, with dashed lines marking the city-wide medians. Click any hexagon on either panel to see its details.</p>
-
-    <h3>Data &amp; methods</h3>
-    <p>Cities are covered with H3 resolution-9 hexagons (~200 m sides). Walking times are computed via OSRM on OpenStreetMap road networks. Public transport travel times use GTFS schedules combined with a Connection Scan Algorithm. Points of Interest from OpenStreetMap serve as opportunity proxies. Population data comes from WorldPop, adjusted to UN estimates.</p>
-
+    <h3 data-i18n="about_h_value">The third dimension: Value</h3>
+    <p data-i18n="about_value_text">The paper also theorises a third axis — Value — capturing the quality and desirability of reachable services.</p>
+    <h3 data-i18n="about_h_read">How to read the visualisation</h3>
+    <p data-i18n="about_read_text">The cartogram (left panel) shows the city divided into ~200 m hexagonal cells, coloured by their zone type. The scatter plot (right panel) places each hexagon by its Opportunity (x-axis) and Proximity (y-axis) scores.</p>
+    <h3 data-i18n="about_h_data">Data &amp; methods</h3>
+    <p data-i18n="about_data_text">Cities are covered with H3 resolution-9 hexagons (~200 m sides). Walking times via OSRM, public transport via GTFS + Connection Scan Algorithm. POIs from OpenStreetMap. Population from WorldPop.</p>
     <div class="modal-footer">
-      <p>
-        <strong>Reference:</strong> Bruno M., Campanelli B., Melo H.P.M., Rossi Mori L., Loreto V. (2026).
-        <em>The dimensions of accessibility: proximity, opportunities, values.</em>
-        EPJ Data Science, 15:22.
-        <a href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank" rel="noopener">doi:10.1140/epjds/s13688-026-00623-8</a>
-      </p>
+      <p data-i18n-html="about_ref"><strong>Reference:</strong> Bruno M., Campanelli B., Melo H.P.M., Rossi Mori L., Loreto V. (2026). <em>The dimensions of accessibility.</em> EPJ Data Science, 15:22. <a href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank" rel="noopener">doi:10.1140/epjds/s13688-026-00623-8</a></p>
     </div>
   </div>
 </div>
 
-<!-- ── Help modal (city view) ── -->
+<!-- ── Help modal (scatter) ── -->
 <div id="help-overlay" class="modal-overlay">
   <div class="modal modal-sm">
     <button class="modal-close" id="help-close" aria-label="Close">&times;</button>
-    <h2>Reading the scatter plot</h2>
-    <p>Each dot is a hexagonal cell in the city. Its position encodes:</p>
+    <h2 data-i18n="help_scatter_title">Reading the scatter plot</h2>
+    <p data-i18n="help_scatter_intro">Each dot is a hexagonal cell. Its position encodes:</p>
     <ul>
-      <li><strong>X-axis (Opportunity):</strong> how many points of interest are reachable by public transport, weighted by travel time.</li>
-      <li><strong>Y-axis (Proximity):</strong> how many points of interest are reachable on foot, weighted by walking time.</li>
+      <li data-i18n-html="help_scatter_x"><strong>X-axis (Opportunity):</strong> POIs reachable by public transport.</li>
+      <li data-i18n-html="help_scatter_y"><strong>Y-axis (Proximity):</strong> POIs reachable on foot.</li>
     </ul>
-    <p>The <strong>dashed lines</strong> mark the city-wide median values. Dots are coloured by zone type. Hover or click to cross-highlight on the map.</p>
-    <p>The cluster of points in the bottom-left corner often consists of hexagons from which no public transport stops can be accessed within 15 minutes of walking.</p>
+    <p data-i18n="help_scatter_median">Dashed lines mark city-wide medians. Hover or click to cross-highlight.</p>
+    <p data-i18n="help_scatter_cluster">The bottom-left cluster = hexagons with no transit stops within 15 min walk.</p>
   </div>
 </div>
 
@@ -94,126 +64,148 @@
 <div id="map-help-overlay" class="modal-overlay">
   <div class="modal modal-sm">
     <button class="modal-close" id="map-help-close" aria-label="Close">&times;</button>
-    <h2>Reading the cartogram</h2>
-    <p>The city is divided into hexagonal cells using the H3 geospatial grid. Each hexagon is coloured by its <strong>zone type</strong>, and its <strong>size represents the resident population</strong> — larger hexagons have more inhabitants.</p>
+    <h2 data-i18n="help_map_title">Reading the cartogram</h2>
+    <p data-i18n="help_map_intro">Hexagons coloured by zone type. Size = resident population.</p>
     <div class="zone-grid" style="margin:12px 0">
-      <div class="zone-item"><span class="zone-dot" style="background:#4caf50"></span><div><strong>Green — Inclusion</strong><br>High proximity + High opportunity</div></div>
-      <div class="zone-item"><span class="zone-dot" style="background:#2196f3"></span><div><strong>Blue — Spatial Isolation</strong><br>High proximity + Low opportunity</div></div>
-      <div class="zone-item"><span class="zone-dot" style="background:#ffc107"></span><div><strong>Yellow — Social Isolation</strong><br>Low proximity + High opportunity</div></div>
-      <div class="zone-item"><span class="zone-dot" style="background:#f44336"></span><div><strong>Red — Total Isolation</strong><br>Low proximity + Low opportunity</div></div>
+      <div class="zone-item"><span class="zone-dot" style="background:#4caf50"></span><div data-i18n-html="help_map_inc"><strong>Green — Inclusion</strong><br>High prox + High opp</div></div>
+      <div class="zone-item"><span class="zone-dot" style="background:#2196f3"></span><div data-i18n-html="help_map_spatial"><strong>Blue — Spatial Isolation</strong><br>High prox + Low opp</div></div>
+      <div class="zone-item"><span class="zone-dot" style="background:#ffc107"></span><div data-i18n-html="help_map_social"><strong>Yellow — Social Isolation</strong><br>Low prox + High opp</div></div>
+      <div class="zone-item"><span class="zone-dot" style="background:#f44336"></span><div data-i18n-html="help_map_total"><strong>Red — Total Isolation</strong><br>Low prox + Low opp</div></div>
     </div>
-    <p><strong>Proximity</strong> measures walkable access to local services (shops, cafés, pharmacies). <strong>Opportunity</strong> measures access to city-wide resources (jobs, universities, stadiums) via public transport.</p>
-    <p>The "high" and "low" thresholds are the city-wide median values — so each city is measured against its own standard.</p>
-    <p>Click any hexagon to inspect its scores. Hover to cross-highlight on the scatter plot.</p>
+    <p data-i18n="help_map_prox_opp">Proximity = walkable local services. Opportunity = transit access to city-wide resources.</p>
+    <p data-i18n="help_map_threshold">Thresholds are city-wide medians — each city is measured against its own standard.</p>
+    <p data-i18n="help_map_interact">Click any hexagon to inspect. Hover to cross-highlight on scatter.</p>
   </div>
 </div>
 
+<!-- ── Stat hint popover (reusable) ── -->
+<div id="stat-popover" class="stat-popover"></div>
+
 <header>
   <h1><a id="title-link" href="#/">Urban Accessibility <span>P.O.V.</span></a></h1>
-  <span id="header-sub">Proximity · Opportunity · Value</span>
-  <button id="back-btn">World Map</button>
+  <span id="header-sub" data-i18n="header_sub">Proximity · Opportunity · Value</span>
+  <button id="back-btn" data-i18n="back_btn">World Map</button>
   <div class="header-right">
-    <button id="about-btn" class="header-link" title="About the framework">About</button>
-    <a id="paper-link" class="header-link" href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank" rel="noopener" title="Read the paper">Paper ↗</a>
+    <button id="lang-btn" class="lang-toggle" title="Switch language">IT</button>
+    <button id="about-btn" class="header-link" title="About the framework" data-i18n="about_btn">About</button>
+    <a id="paper-link" class="header-link" href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank" rel="noopener" data-i18n="paper_btn">Paper ↗</a>
     <a id="repo-link" class="header-link" href="https://github.com/mat701/accessibility-pov" target="_blank" rel="noopener">GitHub ↗</a>
   </div>
 </header>
 
 <div id="app">
-
   <!-- ── LANDING VIEW ── -->
   <div id="view-landing">
     <div id="landing-side">
-      <button id="collapse-side" class="collapse-btn" title="Hide panel">✕</button>
+      <button id="mobile-landing-close" class="collapse-btn" title="Close" style="display:none">✕</button>
       <div>
-        <p class="panel-title">Cities</p>
+        <p class="panel-title" data-i18n="cities_title">Cities</p>
         <div class="search-row">
-          <input id="search-input" type="search" placeholder="Search…"/>
+          <input id="search-input" type="search" data-i18n-placeholder="search_placeholder" placeholder="Search…"/>
         </div>
       </div>
       <div id="city-list"></div>
       <div class="landing-hint">
-        <p>Explore urban accessibility across 18 cities. Each city is analysed through the <strong>P.O.V.</strong> framework: <strong>Proximity</strong> (walkable local services), <strong>Opportunity</strong> (transit-accessible resources), and <strong>Value</strong> (quality of access).</p>
-        <p style="margin-top:6px">Click a city or map pin to begin. <a href="#" id="landing-about-link">Learn more →</a></p>
+        <p data-i18n-html="landing_hint">Explore urban accessibility across 18 cities.</p>
+        <p style="margin-top:6px"><span data-i18n="landing_hint2">Click a city or map pin to begin.</span> <a href="#" id="landing-about-link" data-i18n="learn_more">Learn more →</a></p>
       </div>
     </div>
+    <!-- Edge toggle for landing side panel -->
+    <button id="landing-side-toggle" class="edge-toggle" title="Toggle panel">‹</button>
+
     <div id="landing-map">
+      <!-- Mobile: hamburger to open city list -->
+      <button id="mobile-landing-open" class="mobile-search-btn" title="Search cities" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="5"/><path d="M10 10l4.5 4.5"/></svg>
+        <span data-i18n="mobile_search_cities">Search city</span>
+      </button>
       <div class="info-box" id="info-box-landing">
         <button class="info-box-close" id="close-info-box" title="Close">✕</button>
-        <b>Urban Accessibility P.O.V.</b>
-        Each city is mapped across two dimensions: <b>Proximity</b> (walkable local services) and <b>Opportunity</b> (fast transit reach). Click any pin or city name to explore.
+        <b data-i18n="infobox_title">Urban Accessibility P.O.V.</b>
+        <span data-i18n="infobox_text">Each city is mapped across two dimensions.</span>
         <div class="info-box-cite">
-          Based on <a href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank" rel="noopener">Bruno et al., EPJ Data Science (2026)</a>
+          <span data-i18n="infobox_cite">Based on</span> <a href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank" rel="noopener">Bruno et al., EPJ Data Science (2026)</a>
         </div>
       </div>
-      <button id="expand-side" class="expand-btn" title="Show panel">☰</button>
-      <button id="expand-info" class="expand-btn" title="Show explanation" style="left:auto;right:14px;display:none">ⓘ</button>
+      <button id="expand-info" class="expand-btn" title="Show explanation" style="display:none">ⓘ</button>
     </div>
   </div>
 
   <!-- ── CITY VIEW ── -->
   <div id="view-city">
+    <!-- Mobile tab bar -->
+    <div id="mobile-tabs">
+      <button class="mobile-tab active" data-panel="map" data-i18n="label_cartogram">Cartogram</button>
+      <button class="mobile-tab" data-panel="scatter" data-i18n="label_scatter_short">Scatter</button>
+      <button class="mobile-tab" data-panel="sidebar" data-i18n="mobile_info">Info</button>
+    </div>
+
     <aside id="city-sidebar">
       <div>
-        <p class="panel-title">Zone type</p>
+        <p class="panel-title" data-i18n="zone_type_title">Zone type</p>
         <div class="legend-item" data-type="inclusion">
           <div class="legend-dot" style="background:var(--inclusion)"></div>
-          <span>Inclusion</span>
-          <div class="legend-tip">High proximity + High opportunity. This area has rich local services <em>and</em> good public transport connections to the rest of the city. Residents can walk to everyday needs and easily reach distant jobs, cultural venues, and universities.</div>
+          <span data-i18n="zone_inclusion">Inclusion</span>
+          <button class="legend-explain-btn" aria-label="Explain">?</button>
+          <div class="legend-tip" data-i18n="tip_inclusion">High proximity + High opportunity. Rich local services and good transit.</div>
         </div>
         <div class="legend-item" data-type="spatial isolation">
           <div class="legend-dot" style="background:var(--spatial)"></div>
-          <span>Spatial Isolation</span>
-          <div class="legend-tip">High proximity + Low opportunity. The neighbourhood has shops, cafés, and schools nearby, but poor transit links to the wider city. Reaching a specialised job or a major cultural venue is difficult without a car.</div>
+          <span data-i18n="zone_spatial">Spatial Isolation</span>
+          <button class="legend-explain-btn" aria-label="Explain">?</button>
+          <div class="legend-tip" data-i18n="tip_spatial">High proximity + Low opportunity. Local services nearby, but poor transit.</div>
         </div>
         <div class="legend-item" data-type="social isolation">
           <div class="legend-dot" style="background:var(--social)"></div>
-          <span>Social Isolation</span>
-          <div class="legend-tip">Low proximity + High opportunity. Well connected by transit to the city centre, but the local neighbourhood lacks everyday services — few shops, restaurants, or community spaces within walking distance.</div>
+          <span data-i18n="zone_social">Social Isolation</span>
+          <button class="legend-explain-btn" aria-label="Explain">?</button>
+          <div class="legend-tip" data-i18n="tip_social">Low proximity + High opportunity. Good transit but few local amenities.</div>
         </div>
         <div class="legend-item" data-type="total isolation">
           <div class="legend-dot" style="background:var(--total)"></div>
-          <span>Total Isolation</span>
-          <div class="legend-tip">Low proximity + Low opportunity. Neither local services nor good transit connections. A car is likely essential for daily life. These areas are typically found at the urban periphery.</div>
+          <span data-i18n="zone_total">Total Isolation</span>
+          <button class="legend-explain-btn" aria-label="Explain">?</button>
+          <div class="legend-tip" data-i18n="tip_total">Low proximity + Low opportunity. Car likely essential.</div>
         </div>
-        <p class="legend-explain">Each hexagon is classified based on whether its scores fall above or below the city-wide median. Hover a zone type for details. <a href="#" id="legend-about-link">Full explanation →</a></p>
+        <p class="legend-explain"><span data-i18n="legend_explain">Click ? for zone details.</span> <a href="#" id="legend-about-link" data-i18n="full_explanation">Full explanation →</a></p>
       </div>
       <div>
-        <p class="panel-title">City summary</p>
-        <div class="stat-row"><span class="stat-label">Total hexagons</span><span class="stat-value" id="s-hex">—</span></div>
-        <div class="stat-row">
-          <span class="stat-label">Median proximity <span class="stat-hint" title="Walkable access to local services like shops, cafés, pharmacies">ⓘ</span></span>
-          <span class="stat-value" id="s-prox">—</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Median opportunity <span class="stat-hint" title="Transit access to city-wide resources like jobs, universities, stadiums">ⓘ</span></span>
-          <span class="stat-value" id="s-opp">—</span>
-        </div>
-        <div class="stat-row"><span class="stat-label">Inclusion rate</span><span class="stat-value" id="s-inc">—</span></div>
+        <p class="panel-title" data-i18n="city_summary_title">City summary</p>
+        <div class="stat-row"><span class="stat-label" data-i18n="stat_hexagons">Total hexagons</span><span class="stat-value" id="s-hex">—</span></div>
+        <div class="stat-row"><span class="stat-label"><span data-i18n="stat_prox">Median proximity</span> <button class="stat-hint-btn" data-hint-key="stat_prox_hint">ⓘ</button></span><span class="stat-value" id="s-prox">—</span></div>
+        <div class="stat-row"><span class="stat-label"><span data-i18n="stat_opp">Median opportunity</span> <button class="stat-hint-btn" data-hint-key="stat_opp_hint">ⓘ</button></span><span class="stat-value" id="s-opp">—</span></div>
+        <div class="stat-row"><span class="stat-label" data-i18n="stat_inclusion">Inclusion rate</span><span class="stat-value" id="s-inc">—</span></div>
       </div>
       <div>
-        <p class="panel-title">Selected hexagon</p>
-        <div id="info-box"><p class="no-sel">Click any hexagon or scatter point.</p></div>
+        <p class="panel-title" data-i18n="selected_hex_title">Selected hexagon</p>
+        <div id="info-box"><p class="no-sel" data-i18n="no_selection">Click any hexagon or scatter point to inspect it.</p></div>
       </div>
       <div style="margin-top:auto">
-        <p class="panel-title">Interactions</p>
-        <p class="sidebar-hint">Hover or click to cross-highlight.<br>Scroll &amp; drag to navigate.<br>Click legend to toggle types.</p>
+        <p class="panel-title" data-i18n="interactions_title">Interactions</p>
+        <p class="sidebar-hint" data-i18n-html="interactions_hint">Hover or click to cross-highlight.<br>Scroll &amp; drag to navigate.<br>Click legend to toggle types.</p>
       </div>
     </aside>
 
+    <!-- Edge toggle for city sidebar -->
+    <button id="city-side-toggle" class="edge-toggle" title="Toggle panel">‹</button>
+
     <div id="map-panel">
-      <span class="panel-label">Cartogram <button id="map-help-btn" class="help-btn" title="How to read the map">?</button></span>
+      <span class="panel-label"><span data-i18n="label_cartogram">Cartogram</span> <button id="map-help-btn" class="help-btn" title="How to read the map">?</button></span>
       <div id="city-map"></div>
       <canvas id="map-canvas"></canvas>
     </div>
 
+    <!-- Resize handle between map and scatter -->
+    <div id="resize-handle" title="Drag to resize panels">
+      <div class="resize-grip"></div>
+    </div>
+
     <div id="scatter-panel">
-      <span class="panel-label">Scatter · Proximity vs Opportunity <button id="help-btn" class="help-btn" title="How to read this">?</button></span>
+      <span class="panel-label"><span data-i18n="label_scatter">Scatter · Proximity vs Opportunity</span> <button id="help-btn" class="help-btn" title="How to read this">?</button></span>
       <svg id="scatter-svg"></svg>
     </div>
   </div>
-
-</div><!-- #app -->
+</div>
 
 <script src="app.js"></script>
 </body>

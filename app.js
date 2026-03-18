@@ -85,9 +85,11 @@ document.getElementById("about-btn").addEventListener("click", () => openModal("
 document.getElementById("about-close").addEventListener("click", () => closeModal("about-overlay"));
 document.getElementById("help-btn").addEventListener("click", () => openModal("help-overlay"));
 document.getElementById("help-close").addEventListener("click", () => closeModal("help-overlay"));
+document.getElementById("map-help-btn").addEventListener("click", () => openModal("map-help-overlay"));
+document.getElementById("map-help-close").addEventListener("click", () => closeModal("map-help-overlay"));
 
 // Close modals on overlay click
-["about-overlay", "help-overlay"].forEach(id => {
+["about-overlay", "help-overlay", "map-help-overlay"].forEach(id => {
   document.getElementById(id).addEventListener("click", e => {
     if (e.target === e.currentTarget) closeModal(id);
   });
@@ -107,6 +109,18 @@ document.addEventListener("keydown", e => {
     closeModal("about-overlay");
     closeModal("help-overlay");
   }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COLLAPSIBLE LANDING PANEL
+// ─────────────────────────────────────────────────────────────────────────────
+document.getElementById("collapse-side").addEventListener("click", () => {
+  document.getElementById("view-landing").classList.add("collapsed");
+  setTimeout(() => landingMap.invalidateSize(), 50);
+});
+document.getElementById("expand-side").addEventListener("click", () => {
+  document.getElementById("view-landing").classList.remove("collapsed");
+  setTimeout(() => landingMap.invalidateSize(), 50);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

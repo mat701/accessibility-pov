@@ -89,14 +89,32 @@
   </div>
 </div>
 
+<!-- ── Map help modal ── -->
+<div id="map-help-overlay" class="modal-overlay">
+  <div class="modal modal-sm">
+    <button class="modal-close" id="map-help-close" aria-label="Close">&times;</button>
+    <h2>Reading the cartogram</h2>
+    <p>The city is divided into hexagonal cells (~200 m wide) using the H3 geospatial grid. Each hexagon is coloured by its <strong>zone type</strong>:</p>
+    <div class="zone-grid" style="margin:12px 0">
+      <div class="zone-item"><span class="zone-dot" style="background:#4caf50"></span><div><strong>Green — Inclusion</strong><br>High proximity + High opportunity</div></div>
+      <div class="zone-item"><span class="zone-dot" style="background:#2196f3"></span><div><strong>Blue — Spatial Isolation</strong><br>High proximity + Low opportunity</div></div>
+      <div class="zone-item"><span class="zone-dot" style="background:#ffc107"></span><div><strong>Yellow — Social Isolation</strong><br>Low proximity + High opportunity</div></div>
+      <div class="zone-item"><span class="zone-dot" style="background:#f44336"></span><div><strong>Red — Total Isolation</strong><br>Low proximity + Low opportunity</div></div>
+    </div>
+    <p><strong>Proximity</strong> measures walkable access to local services (shops, cafés, pharmacies). <strong>Opportunity</strong> measures access to city-wide resources (jobs, universities, stadiums) via public transport.</p>
+    <p>The "high" and "low" thresholds are the city-wide median values — so each city is measured against its own standard.</p>
+    <p>Click any hexagon to inspect its scores. Hover to cross-highlight on the scatter plot.</p>
+  </div>
+</div>
+
 <header>
-  <h1>Urban Accessibility <span>P.O.V.</span></h1>
+  <h1><a id="title-link" href="#/">Urban Accessibility <span>P.O.V.</span></a></h1>
   <span id="header-sub">Proximity · Opportunity · Value</span>
-  <button id="back-btn">← All cities</button>
+  <button id="back-btn">World Map</button>
   <div class="header-right">
     <button id="about-btn" class="header-link" title="About the framework">About</button>
     <a id="paper-link" class="header-link" href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank" rel="noopener" title="Read the paper">Paper ↗</a>
-    <a id="repo-link" class="header-link" href="https://github.com/matteobru/accessibility-viz" target="_blank" rel="noopener">GitHub ↗</a>
+    <a id="repo-link" class="header-link" href="https://github.com/mat701/accessibility-pov" target="_blank" rel="noopener">GitHub ↗</a>
   </div>
 </header>
 
@@ -105,6 +123,7 @@
   <!-- ── LANDING VIEW ── -->
   <div id="view-landing">
     <div id="landing-side">
+      <button id="collapse-side" class="collapse-btn" title="Hide panel">✕</button>
       <div>
         <p class="panel-title">Cities</p>
         <div class="search-row">
@@ -114,18 +133,19 @@
       </div>
       <div id="city-list"></div>
       <div class="landing-hint">
-        <p>Explore urban accessibility across 18 cities. Each city is analysed through the <strong>P.O.V.</strong> framework: <em>Proximity</em> (walkable local services), <em>Opportunity</em> (transit-accessible resources), and <em>Value</em> (quality of access).</p>
+        <p>Explore urban accessibility across 18 cities. Each city is analysed through the <strong>P.O.V.</strong> framework: <strong>Proximity</strong> (walkable local services), <strong>Opportunity</strong> (transit-accessible resources), and <strong>Value</strong> (quality of access).</p>
         <p style="margin-top:6px">Click a city or map pin to begin. <a href="#" id="landing-about-link">Learn more →</a></p>
       </div>
     </div>
     <div id="landing-map">
       <div class="info-box">
         <b>Urban Accessibility P.O.V.</b>
-        Each city is mapped across two dimensions: <b>Proximity</b> (walkable local services) and <b>Opportunity</b> (fast transit reach). Click any pin or city name to explore.
+        Each city is mapped across two dimensions: <strong>Proximity</strong> (walkable local services) and <strong>Opportunity</strong> (fast transit reach). The <strong>Value</strong> of places is yet to be quantified! Click any pin or city name to explore.
         <div class="info-box-cite">
           Based on <a href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank" rel="noopener">Bruno et al., EPJ Data Science (2026)</a>
         </div>
       </div>
+      <button id="expand-side" class="expand-btn" title="Show panel">☰</button>
     </div>
   </div>
 
@@ -180,7 +200,7 @@
     </aside>
 
     <div id="map-panel">
-      <span class="panel-label">Cartogram</span>
+      <span class="panel-label">Cartogram <button id="map-help-btn" class="help-btn" title="How to read the map">?</button></span>
       <div id="city-map"></div>
       <canvas id="map-canvas"></canvas>
     </div>

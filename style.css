@@ -32,6 +32,8 @@ header {
 }
 header h1 { font-family: var(--font-head); font-size: 1.05rem; letter-spacing: .01em; }
 header h1 span { color: var(--accent); }
+#title-link { color: var(--text); text-decoration: none; }
+#title-link:hover { opacity: .75; }
 #header-sub { font-size: .78rem; color: var(--muted); border-left: 1px solid var(--border); padding-left: 12px; }
 #back-btn {
   background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
@@ -236,6 +238,32 @@ header h1 span { color: var(--accent); }
   line-height: 1;
 }
 .help-btn:hover { background: rgba(37,99,235,.08); border-color: var(--accent); }
+
+.collapse-btn {
+  position: absolute; top: 10px; right: 10px; z-index: 10;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--muted); font-size: .8rem; width: 28px; height: 28px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .12s;
+}
+.collapse-btn:hover { background: var(--bg); color: var(--text); }
+
+#landing-side { position: relative; }
+
+.expand-btn {
+  position: absolute; top: 14px; left: 14px; z-index: 1001;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--muted); font-size: 1rem; width: 34px; height: 34px;
+  cursor: pointer; display: none; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+  transition: background .12s;
+}
+.expand-btn:hover { background: var(--bg); color: var(--text); }
+
+#view-landing.collapsed { grid-template-columns: 0 1fr; }
+#view-landing.collapsed #landing-side { display: none; }
+#view-landing.collapsed .expand-btn { display: flex; }
+#view-landing.collapsed .info-box { display: none; }
 
 /* ═══════════════════════════════════════
    SHARED

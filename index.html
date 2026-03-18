@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Urban Accessibility · P.O.V. Framework</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accessibility P.O.V.</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="./favicon.ico" sizes="any">
 </head>
 <body>
 
@@ -128,7 +129,6 @@
         <p class="panel-title">Cities</p>
         <div class="search-row">
           <input id="search-input" type="search" placeholder="Search…"/>
-          <button id="search-clear">✕</button>
         </div>
       </div>
       <div id="city-list"></div>
@@ -147,6 +147,7 @@
         </div>
       </div>
       <button id="expand-side" class="expand-btn" title="Show panel">☰</button>
+      <button id="expand-info" class="expand-btn" title="Show explanation" style="left:auto;right:14px;display:none">ⓘ</button>
     </div>
   </div>
 

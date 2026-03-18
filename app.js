@@ -124,8 +124,12 @@ document.getElementById("expand-side").addEventListener("click", () => {
 });
 document.getElementById("close-info-box").addEventListener("click", () => {
   document.getElementById("info-box-landing").style.display = "none";
+  document.getElementById("expand-info").style.display = "flex";
 });
-
+document.getElementById("expand-info").addEventListener("click", () => {
+  document.getElementById("info-box-landing").style.display = "";
+  document.getElementById("expand-info").style.display = "none";
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LANDING MAP
@@ -179,10 +183,6 @@ function renderCityList(filter = "") {
 renderCityList();
 
 document.getElementById("search-input").addEventListener("input", e => renderCityList(e.target.value));
-document.getElementById("search-clear").addEventListener("click", () => {
-  document.getElementById("search-input").value = "";
-  renderCityList();
-});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CITY MAP (Leaflet + Canvas overlay)

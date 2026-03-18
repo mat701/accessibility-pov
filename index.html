@@ -94,7 +94,7 @@
   <div class="modal modal-sm">
     <button class="modal-close" id="map-help-close" aria-label="Close">&times;</button>
     <h2>Reading the cartogram</h2>
-    <p>The city is divided into hexagonal cells (~200 m wide) using the H3 geospatial grid. Each hexagon is coloured by its <strong>zone type</strong>:</p>
+    <p>The city is divided into hexagonal cells using the H3 geospatial grid. Each hexagon is coloured by its <strong>zone type</strong>, and its <strong>size represents the resident population</strong> — larger hexagons have more inhabitants.</p>
     <div class="zone-grid" style="margin:12px 0">
       <div class="zone-item"><span class="zone-dot" style="background:#4caf50"></span><div><strong>Green — Inclusion</strong><br>High proximity + High opportunity</div></div>
       <div class="zone-item"><span class="zone-dot" style="background:#2196f3"></span><div><strong>Blue — Spatial Isolation</strong><br>High proximity + Low opportunity</div></div>
@@ -138,9 +138,10 @@
       </div>
     </div>
     <div id="landing-map">
-      <div class="info-box">
+      <div class="info-box" id="info-box-landing">
+        <button class="info-box-close" id="close-info-box" title="Close">✕</button>
         <b>Urban Accessibility P.O.V.</b>
-        Each city is mapped across two dimensions: <strong>Proximity</strong> (walkable local services) and <strong>Opportunity</strong> (fast transit reach). The <strong>Value</strong> of places is yet to be quantified! Click any pin or city name to explore.
+        Each city is mapped across two dimensions: <b>Proximity</b> (walkable local services) and <b>Opportunity</b> (fast transit reach). Click any pin or city name to explore.
         <div class="info-box-cite">
           Based on <a href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank" rel="noopener">Bruno et al., EPJ Data Science (2026)</a>
         </div>

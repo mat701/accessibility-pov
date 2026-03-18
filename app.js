@@ -122,6 +122,10 @@ document.getElementById("expand-side").addEventListener("click", () => {
   document.getElementById("view-landing").classList.remove("collapsed");
   setTimeout(() => landingMap.invalidateSize(), 50);
 });
+document.getElementById("close-info-box").addEventListener("click", () => {
+  document.getElementById("info-box-landing").style.display = "none";
+});
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LANDING MAP

@@ -37,6 +37,14 @@ const I18N = {
     scatter_q_inclusion:"Inclusion", scatter_q_spatial:"Spatial Isolation",
     scatter_q_social:"Social Isolation", scatter_q_total:"Total Isolation",
     tt_walkable:"Walkable services", tt_transit:"Transit reach", tt_pop:"Pop",
+    stats_btn:"Compare cities", stats_title:"City Comparison", stats_subtitle:"Comparing accessibility across all 18 cities",
+    stats_sort_by:"Sort by:", stats_sort_inclusion:"Inclusion rate", stats_sort_proximity:"Median proximity",
+    stats_sort_opportunity:"Median opportunity", stats_sort_population:"Population",
+    stats_loading:"Loading city data…", stats_h_inclusion:"Zone distribution by city",
+    stats_h_scatter:"Proximity vs Opportunity (city averages)", stats_h_table:"Summary table",
+    stats_th_city:"City", stats_th_hex:"Hexagons", stats_th_pop:"Population",
+    stats_th_med_prox:"Med. Proximity", stats_th_med_opp:"Med. Opportunity",
+    stats_th_inc:"Inclusion", stats_th_spat:"Spatial Isol.", stats_th_soc:"Social Isol.", stats_th_tot:"Total Isol.",
     about_title:"The P.O.V. Framework", about_subtitle:"Proximity · Opportunity · Value",
     about_intro:'This interactive visualisation accompanies the research paper <a href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank"><em>The dimensions of accessibility: proximity, opportunities, values</em></a> by Bruno, Campanelli, Melo, Rossi Mori &amp; Loreto (EPJ Data Science, 2026).',
     about_h_prox_opp:"What are Proximity and Opportunity?",
@@ -105,6 +113,14 @@ const I18N = {
     scatter_q_inclusion:"Inclusione", scatter_q_spatial:"Isolamento Spaziale",
     scatter_q_social:"Isolamento Sociale", scatter_q_total:"Isolamento Totale",
     tt_walkable:"Servizi pedonali", tt_transit:"Raggiungibilità", tt_pop:"Pop",
+    stats_btn:"Confronta città", stats_title:"Confronto Città", stats_subtitle:"Confronto dell'accessibilità nelle 18 città",
+    stats_sort_by:"Ordina per:", stats_sort_inclusion:"Tasso di inclusione", stats_sort_proximity:"Prossimità mediana",
+    stats_sort_opportunity:"Opportunità mediana", stats_sort_population:"Popolazione",
+    stats_loading:"Caricamento dati città…", stats_h_inclusion:"Distribuzione zone per città",
+    stats_h_scatter:"Prossimità vs Opportunità (medie cittadine)", stats_h_table:"Tabella riassuntiva",
+    stats_th_city:"Città", stats_th_hex:"Esagoni", stats_th_pop:"Popolazione",
+    stats_th_med_prox:"Pross. mediana", stats_th_med_opp:"Opp. mediana",
+    stats_th_inc:"Inclusione", stats_th_spat:"Isol. Spaz.", stats_th_soc:"Isol. Soc.", stats_th_tot:"Isol. Tot.",
     about_title:"Il Framework P.O.V.", about_subtitle:"Prossimità · Opportunità · Valore",
     about_intro:'Visualizzazione interattiva dell\'articolo <a href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank"><em>The dimensions of accessibility</em></a> di Bruno et al. (EPJ Data Science, 2026).',
     about_h_prox_opp:"Cosa sono Prossimità e Opportunità?",
@@ -137,6 +153,7 @@ function applyLanguage() {
   document.getElementById("lang-btn").textContent = currentLang === "en" ? "IT" : "EN";
   document.title = currentLang === "en" ? "Accessibility P.O.V." : "Accessibilità P.O.V.";
   if (features.length) { updateInfoBox(selectedId ? features.find(f => f.properties.id === selectedId) : null); buildScatter(); }
+  if (cityStats && document.getElementById("view-stats").style.display!=="none") renderStats();
 }
 document.getElementById("lang-btn").addEventListener("click", () => { currentLang = currentLang === "en" ? "it" : "en"; applyLanguage(); });
 
@@ -501,17 +518,22 @@ window.addEventListener("resize",()=>{if(window.innerWidth>1024){document.getEle
 // ─────────────────────────────────────────────────────────────────────────────
 function goCity(city){location.hash="#/city/"+encodeURIComponent(city);}
 function goHome(){location.hash="#/";}
+function goStats(){location.hash="#/stats";}
 document.getElementById("back-btn").addEventListener("click",goHome);
+document.getElementById("stats-btn").addEventListener("click",goStats);
 
 async function router(){
   const hash=location.hash||"#/";
   if(hash.startsWith("#/city/")){const city=decodeURIComponent(hash.split("/city/")[1]||"");if(!city||!CITY_FILES[city]){goHome();return;}await showCityView(city);}
+  else if(hash==="#stats"||hash==="#/stats"){await showStatsView();}
   else showLandingView();
 }
 
 function showLandingView(){
   document.getElementById("view-landing").style.display="grid";
   document.getElementById("view-city").style.display="none";
+  document.getElementById("view-city").classList.remove("active");
+  document.getElementById("view-stats").style.display="none";
   document.getElementById("back-btn").style.display="none";
   document.getElementById("header-sub").textContent=t("header_sub");
   setTimeout(()=>landingMap.invalidateSize(),50);
@@ -519,7 +541,9 @@ function showLandingView(){
 
 async function showCityView(city){
   document.getElementById("view-landing").style.display="none";
-  document.getElementById("view-city").style.display="grid";
+  document.getElementById("view-city").style.display="";
+  document.getElementById("view-city").classList.add("active");
+  document.getElementById("view-stats").style.display="none";
   document.getElementById("back-btn").style.display="inline-block";
   document.getElementById("header-sub").textContent=city;
   // Reset grid to default proportions
@@ -555,6 +579,158 @@ async function showCityView(city){
   cityLeaflet.fitBounds([[Math.min(...lats),Math.min(...lngs)],[Math.max(...lats),Math.max(...lngs)]],{padding:pad,animate:false});
   resizeCanvas();drawCanvas();buildScatter();updateCityStats();
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATS VIEW
+// ─────────────────────────────────────────────────────────────────────────────
+let cityStats = null;
+
+async function showStatsView() {
+  document.getElementById("view-landing").style.display="none";
+  document.getElementById("view-city").style.display="none";
+  document.getElementById("view-city").classList.remove("active");
+  document.getElementById("view-stats").style.display="block";
+  document.getElementById("back-btn").style.display="inline-block";
+  document.getElementById("header-sub").textContent=t("stats_title");
+
+  if (!cityStats) {
+    document.getElementById("stats-loading").style.display="";
+    document.getElementById("stats-content").style.display="none";
+    cityStats = [];
+    const entries = Object.entries(CITY_FILES);
+    await Promise.all(entries.map(async ([city, url]) => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const gj = await res.json();
+        const feats = gj.features;
+        const n = feats.length;
+        const proxes = feats.map(f=>f.properties.proximity).sort((a,b)=>a-b);
+        const opps = feats.map(f=>f.properties.opportunity).sort((a,b)=>a-b);
+        const pop = feats.reduce((s,f)=>s+f.properties.population,0);
+        const inc = feats.filter(f=>f.properties.cell_type==="inclusion").length;
+        const spat = feats.filter(f=>f.properties.cell_type==="spatial isolation").length;
+        const soc = feats.filter(f=>f.properties.cell_type==="social isolation").length;
+        const tot = feats.filter(f=>f.properties.cell_type==="total isolation").length;
+        const avgProx = feats.reduce((s,f)=>s+f.properties.proximity*f.properties.population,0)/pop;
+        const avgOpp = feats.reduce((s,f)=>s+f.properties.opportunity*f.properties.population,0)/pop;
+        cityStats.push({
+          city, n, pop,
+          medProx: proxes[Math.floor(n/2)], medOpp: opps[Math.floor(n/2)],
+          avgProx, avgOpp,
+          incPct: inc/n*100, spatPct: spat/n*100, socPct: soc/n*100, totPct: tot/n*100
+        });
+      } catch(e) { console.error("Stats: failed to load", city, e); }
+    }));
+  }
+  document.getElementById("stats-loading").style.display="none";
+  document.getElementById("stats-content").style.display="";
+  renderStats();
+}
+
+function renderStats() {
+  const sort = document.getElementById("stats-sort").value;
+  const data = [...cityStats].sort((a,b) => {
+    if (sort==="inclusion") return b.incPct - a.incPct;
+    if (sort==="proximity") return b.medProx - a.medProx;
+    if (sort==="opportunity") return b.medOpp - a.medOpp;
+    if (sort==="population") return b.pop - a.pop;
+    return 0;
+  });
+
+  // Stacked bar chart
+  const chartEl = document.getElementById("stats-stacked-chart");
+  chartEl.innerHTML = `<div class="stacked-legend">
+    <div class="stacked-legend-item"><div class="stacked-legend-dot" style="background:#4caf50"></div>${t("scatter_q_inclusion")}</div>
+    <div class="stacked-legend-item"><div class="stacked-legend-dot" style="background:#2196f3"></div>${t("scatter_q_spatial")}</div>
+    <div class="stacked-legend-item"><div class="stacked-legend-dot" style="background:#ffc107"></div>${t("scatter_q_social")}</div>
+    <div class="stacked-legend-item"><div class="stacked-legend-dot" style="background:#f44336"></div>${t("scatter_q_total")}</div>
+  </div>`;
+  data.forEach(d => {
+    const row = document.createElement("div");
+    row.className = "stacked-row";
+    row.onclick = () => goCity(d.city);
+    row.innerHTML = `<div class="stacked-city-label">${d.city}</div>
+      <div class="stacked-bar-wrap">
+        <div class="stacked-seg" style="flex:${d.incPct};background:#4caf50" title="${t("scatter_q_inclusion")}: ${d.incPct.toFixed(1)}%"></div>
+        <div class="stacked-seg" style="flex:${d.spatPct};background:#2196f3" title="${t("scatter_q_spatial")}: ${d.spatPct.toFixed(1)}%"></div>
+        <div class="stacked-seg" style="flex:${d.socPct};background:#ffc107" title="${t("scatter_q_social")}: ${d.socPct.toFixed(1)}%"></div>
+        <div class="stacked-seg" style="flex:${d.totPct};background:#f44336" title="${t("scatter_q_total")}: ${d.totPct.toFixed(1)}%"></div>
+      </div>
+      <div class="stacked-pct">${d.incPct.toFixed(0)}%</div>`;
+    chartEl.appendChild(row);
+  });
+
+  // City scatter (population-weighted averages)
+  const svg = document.getElementById("stats-city-scatter");
+  svg.innerHTML = "";
+  const W = svg.clientWidth || 500, H = svg.clientHeight || 340;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const ms = {top:30,right:30,bottom:45,left:55};
+  const spw = W-ms.left-ms.right, sph = H-ms.top-ms.bottom;
+  const maxO = Math.max(...data.map(d=>d.avgOpp))*1.1;
+  const maxP = Math.max(...data.map(d=>d.avgProx))*1.1;
+  const ssx = v => ms.left+(v/maxO)*spw, ssy = v => ms.top+sph-(v/maxP)*sph;
+  const sg = document.createElementNS("http://www.w3.org/2000/svg","g");
+  svg.appendChild(sg);
+  const sac="rgba(0,0,0,.15)";
+  sg.appendChild(se("line",{x1:ms.left,y1:ms.top,x2:ms.left,y2:ms.top+sph,stroke:sac}));
+  sg.appendChild(se("line",{x1:ms.left,y1:ms.top+sph,x2:ms.left+spw,y2:ms.top+sph,stroke:sac}));
+  // Tick marks
+  for(let i=0;i<=4;i++){
+    const v=maxO*i/4,x=ssx(v);
+    sg.appendChild(se("line",{x1:x,y1:ms.top+sph,x2:x,y2:ms.top+sph+4,stroke:sac}));
+    const txt=se("text",{x,y:ms.top+sph+14,"text-anchor":"middle",fill:"rgba(0,0,0,.4)","font-size":"9"});
+    txt.textContent=fmtK(v);sg.appendChild(txt);
+  }
+  for(let i=0;i<=4;i++){
+    const v=maxP*i/4,y=ssy(v);
+    sg.appendChild(se("line",{x1:ms.left-4,y1:y,x2:ms.left,y2:y,stroke:sac}));
+    const txt=se("text",{x:ms.left-7,y,"text-anchor":"end","dominant-baseline":"middle",fill:"rgba(0,0,0,.4)","font-size":"9"});
+    txt.textContent=fmtK(v);sg.appendChild(txt);
+  }
+  const sxl=se("text",{x:ms.left+spw/2,y:H-6,"text-anchor":"middle",fill:"rgba(0,0,0,.45)","font-size":"10"});
+  sxl.textContent=t("scatter_opp_label");sg.appendChild(sxl);
+  const syl=se("text",{x:12,y:ms.top+sph/2,"text-anchor":"middle",fill:"rgba(0,0,0,.45)","font-size":"10",transform:`rotate(-90,12,${ms.top+sph/2})`});
+  syl.textContent=t("scatter_prox_label");sg.appendChild(syl);
+  // Dots + labels
+  data.forEach(d => {
+    const cx=ssx(d.avgOpp), cy=ssy(d.avgProx);
+    const r = Math.max(4, Math.min(14, Math.sqrt(d.pop/50000)));
+    const col = d.incPct>30?"#4caf50":d.incPct>15?"#ffc107":"#f44336";
+    const dot=se("circle",{cx,cy,r,fill:col,"fill-opacity":"0.7",stroke:"#fff","stroke-width":"1.5",style:"cursor:pointer"});
+    dot.addEventListener("click",()=>goCity(d.city));
+    dot.addEventListener("mouseenter",e=>{
+      tooltip.innerHTML=`<strong>${d.city}</strong>${t("tt_walkable")}: ${fmtK(d.avgProx)}<br>${t("tt_transit")}: ${fmtK(d.avgOpp)}<br>${t("stats_th_inc")}: ${d.incPct.toFixed(1)}%<br>${t("tt_pop")}: ${Math.round(d.pop).toLocaleString()}`;
+      tooltip.classList.add("visible");
+      tooltip.style.left=(e.clientX+14)+"px";tooltip.style.top=(e.clientY-10)+"px";
+    });
+    dot.addEventListener("mousemove",e=>{tooltip.style.left=(e.clientX+14)+"px";tooltip.style.top=(e.clientY-10)+"px";});
+    dot.addEventListener("mouseleave",()=>{tooltip.classList.remove("visible");});
+    sg.appendChild(dot);
+    const lbl=se("text",{x:cx,y:cy-r-3,"text-anchor":"middle",fill:"rgba(0,0,0,.55)","font-size":"8","font-family":"DM Sans",style:"pointer-events:none"});
+    lbl.textContent=d.city;sg.appendChild(lbl);
+  });
+
+  // Table
+  const tbody = document.getElementById("stats-tbody");
+  tbody.innerHTML = "";
+  data.forEach(d => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="city-name-cell" onclick="goCity('${d.city}')">${d.city}</td>
+      <td>${d.n.toLocaleString()}</td>
+      <td>${Math.round(d.pop).toLocaleString()}</td>
+      <td>${fmtK(d.medProx)}</td>
+      <td>${fmtK(d.medOpp)}</td>
+      <td>${d.incPct.toFixed(1)}%</td>
+      <td>${d.spatPct.toFixed(1)}%</td>
+      <td>${d.socPct.toFixed(1)}%</td>
+      <td>${d.totPct.toFixed(1)}%</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById("stats-sort").addEventListener("change", () => { if(cityStats) renderStats(); });
 
 // RESIZE
 const ro=new ResizeObserver(()=>{

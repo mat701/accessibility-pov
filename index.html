@@ -87,6 +87,7 @@
   <button id="back-btn" data-i18n="back_btn">World Map</button>
   <div class="header-right">
     <button id="lang-btn" class="lang-toggle" title="Switch language">IT</button>
+    <button id="stats-btn" class="header-link" title="Compare cities" data-i18n="stats_btn">Compare</button>
     <button id="about-btn" class="header-link" title="About the framework" data-i18n="about_btn">About</button>
     <a id="paper-link" class="header-link" href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank" rel="noopener" data-i18n="paper_btn">Paper ↗</a>
     <a id="repo-link" class="header-link" href="https://github.com/mat701/accessibility-pov" target="_blank" rel="noopener">GitHub ↗</a>
@@ -208,6 +209,56 @@
       <svg id="scatter-svg"></svg>
     </div>
   </div>
+
+  <!-- ── STATS VIEW ── -->
+  <div id="view-stats" style="display:none">
+    <div class="stats-container">
+      <div class="stats-header">
+        <h2 data-i18n="stats_title">City Comparison</h2>
+        <p class="stats-subtitle" data-i18n="stats_subtitle">Comparing accessibility across all 18 cities</p>
+        <div class="stats-controls">
+          <label data-i18n="stats_sort_by">Sort by:</label>
+          <select id="stats-sort">
+            <option value="inclusion" data-i18n="stats_sort_inclusion">Inclusion rate</option>
+            <option value="proximity" data-i18n="stats_sort_proximity">Median proximity</option>
+            <option value="opportunity" data-i18n="stats_sort_opportunity">Median opportunity</option>
+            <option value="population" data-i18n="stats_sort_population">Population</option>
+          </select>
+        </div>
+      </div>
+      <div id="stats-loading" class="stats-loading" data-i18n="stats_loading">Loading city data…</div>
+      <div id="stats-content" style="display:none">
+        <div class="stats-chart-section">
+          <h3 data-i18n="stats_h_inclusion">Zone distribution by city</h3>
+          <div id="stats-stacked-chart"></div>
+        </div>
+        <div class="stats-chart-section">
+          <h3 data-i18n="stats_h_scatter">Proximity vs Opportunity (city averages)</h3>
+          <svg id="stats-city-scatter"></svg>
+        </div>
+        <div class="stats-chart-section">
+          <h3 data-i18n="stats_h_table">Summary table</h3>
+          <div class="stats-table-wrap">
+            <table id="stats-table">
+              <thead><tr>
+                <th data-i18n="stats_th_city">City</th>
+                <th data-i18n="stats_th_hex">Hexagons</th>
+                <th data-i18n="stats_th_pop">Population</th>
+                <th data-i18n="stats_th_med_prox">Med. Proximity</th>
+                <th data-i18n="stats_th_med_opp">Med. Opportunity</th>
+                <th data-i18n="stats_th_inc">Inclusion</th>
+                <th data-i18n="stats_th_spat">Spatial Isol.</th>
+                <th data-i18n="stats_th_soc">Social Isol.</th>
+                <th data-i18n="stats_th_tot">Total Isol.</th>
+              </tr></thead>
+              <tbody id="stats-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script src="app.js"></script>

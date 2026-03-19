@@ -369,7 +369,7 @@ header h1 span { color: var(--accent); }
   header { padding: 0 10px; gap: 8px; height: 46px; }
   header h1 { font-size: .9rem; }
   #header-sub { display: none; }
-  #back-btn { font-size: .72rem; padding: 3px 8px; }
+  #back-btn { display: none !important; }
   .header-right { gap: 4px; }
   .header-link { font-size: .7rem; padding: 3px 5px; }
   .lang-toggle { font-size: .65rem; padding: 2px 6px; }
@@ -399,7 +399,6 @@ header h1 span { color: var(--accent); }
 }
 @media (max-width: 480px) {
   header h1 { font-size: .82rem; }
-  #back-btn { font-size: .68rem; padding: 2px 6px; }
   .header-link { font-size: .65rem; }
   #repo-link, #paper-link { display: none; }
   .info-box { max-width: 180px; font-size: .7rem; }

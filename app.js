@@ -9,8 +9,7 @@ const I18N = {
     landing_hint:'Explore urban accessibility across 18 cities. Each city is analysed through the <strong>P.O.V.</strong> framework: <strong>Proximity</strong> (walkable local services), <strong>Opportunity</strong> (transit-accessible resources), and <strong>Value</strong> (quality of access).',
     landing_hint2:"Click a city or map pin to begin.", learn_more:"Learn more →",
     infobox_title:"Urban Accessibility P.O.V.",
-    infobox_text:"Each city is mapped across two dimensions: Proximity (walkable local services) and Opportunity (fast transit reach). Click any pin or city name to explore.",
-    infobox_cite:"Based on",
+    infobox_text:"Each city is mapped across two dimensions: <strong>Proximity</strong> (walkable local services) and <strong>Opportunity</strong> (fast transit reach). A third dimension, the intrinsic <strong>Value</strong> of places, has yet to be quantified! Click any pin or city name to explore.",    infobox_cite:"Based on",
     zone_type_title:"Zone type", zone_inclusion:"Inclusion", zone_spatial:"Spatial Isolation",
     zone_social:"Social Isolation", zone_total:"Total Isolation",
     tip_inclusion:"High proximity + High opportunity. Rich local services and good transit connections. Residents can walk to everyday needs and easily reach distant jobs and cultural venues.",
@@ -22,7 +21,7 @@ const I18N = {
     stat_prox:"Median proximity", stat_opp:"Median opportunity",
     stat_prox_hint:"Walkable access to local services like shops, cafés, pharmacies",
     stat_opp_hint:"Transit access to city-wide resources like jobs, universities, stadiums",
-    stat_inclusion:"Inclusion rate", selected_hex_title:"Selected hexagon",
+    stat_inclusion:"Inclusion rate", stat_spatial:"Spatial isolation", stat_social:"Social isolation", stat_total:"Total isolation", selected_hex_title:"Selected hexagon",
     no_selection:"Click any hexagon or scatter point to inspect it.",
     interactions_title:"Interactions",
     interactions_hint:"Hover or click to cross-highlight.<br>Scroll &amp; drag to navigate.<br>Click legend to toggle types.",
@@ -78,7 +77,7 @@ const I18N = {
     landing_hint:'Esplora l\'accessibilità urbana in 18 città tramite il framework <strong>P.O.V.</strong>: <strong>Prossimità</strong>, <strong>Opportunità</strong> e <strong>Valore</strong>.',
     landing_hint2:"Clicca su una città o un punto della mappa.", learn_more:"Scopri di più →",
     infobox_title:"Accessibilità Urbana P.O.V.",
-    infobox_text:"Ogni città è mappata su due dimensioni: Prossimità (servizi locali a piedi) e Opportunità (accesso con i mezzi). Clicca per esplorare.",
+    infobox_text:"Ogni città è mappata su due dimensioni: <strong>Prossimità</strong> (servizi locali raggiungibili a piedi) e <strong>Opportunità</strong> (accesso rapido con i mezzi). Una terza dimensione, il <strong>Valore</strong> intrinseco dei luoghi, deve ancora essere quantificata! Clicca su un punto o sul nome di una città per esplorare.",
     infobox_cite:"Basato su",
     zone_type_title:"Tipo di zona", zone_inclusion:"Inclusione", zone_spatial:"Isolamento Spaziale",
     zone_social:"Isolamento Sociale", zone_total:"Isolamento Totale",
@@ -90,7 +89,7 @@ const I18N = {
     city_summary_title:"Riepilogo città", stat_hexagons:"Esagoni totali",
     stat_prox:"Prossimità mediana", stat_opp:"Opportunità mediana",
     stat_prox_hint:"Accesso pedonale a servizi locali", stat_opp_hint:"Accesso con mezzi a risorse cittadine",
-    stat_inclusion:"Tasso di inclusione", selected_hex_title:"Esagono selezionato",
+    stat_inclusion:"Tasso di inclusione", stat_spatial:"Isolamento spaziale", stat_social:"Isolamento sociale", stat_total:"Isolamento totale", selected_hex_title:"Esagono selezionato",
     no_selection:"Clicca su un esagono o punto scatter.",
     interactions_title:"Interazioni",
     interactions_hint:"Passa il mouse o clicca per evidenziare.<br>Scorri e trascina per navigare.<br>Clicca legenda per filtrare.",
@@ -270,9 +269,11 @@ document.getElementById("expand-info").addEventListener("click",()=>{
 // MOBILE: landing panel open/close
 document.getElementById("mobile-landing-open")?.addEventListener("click",()=>{
   document.getElementById("view-landing").classList.add("mobile-side-open");
+  document.getElementById("mobile-landing-open").classList.add("hidden-btn");
 });
 document.getElementById("mobile-landing-close")?.addEventListener("click",()=>{
   document.getElementById("view-landing").classList.remove("mobile-side-open");
+  document.getElementById("mobile-landing-open").classList.remove("hidden-btn");
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -328,7 +329,7 @@ ALL_CITIES.forEach(city=>{
   marker.bindTooltip(`<b>${city}</b>`,{direction:"top",sticky:false});
   marker.on("click",()=>goCity(city)); landingMarkers.push(marker);
 });
-try{landingMap.fitBounds(L.featureGroup(landingMarkers).getBounds().pad(0.15));}catch(e){}
+try{landingMap.fitBounds(L.featureGroup(landingMarkers).getBounds().pad(0.03));}catch(e){}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CITY LIST
@@ -449,14 +450,21 @@ function updateInfoBox(f){
     <div class="info-row info-row-muted"><span class="info-key">${t("info_med_prox")}</span><span class="info-val">${fmtK(p.prox_med)}</span></div>
     <div class="info-row info-row-muted"><span class="info-key">${t("info_med_opp")}</span><span class="info-val">${fmtK(p.opp_med)}</span></div>`;
 }
-function updateCityStats(){
-  const n=features.length,proxes=features.map(f=>f.properties.prox).sort((a,b)=>a-b);
-  const opps=features.map(f=>f.properties.opp).sort((a,b)=>a-b);
-  const incN=features.filter(f=>f.properties.type==="inclusion").length;
-  document.getElementById("s-hex").textContent=n;
-  document.getElementById("s-prox").textContent=fmtK(proxes[Math.floor(n/2)]);
-  document.getElementById("s-opp").textContent=fmtK(opps[Math.floor(n/2)]);
-  document.getElementById("s-inc").textContent=(incN/n*100).toFixed(1)+"%";
+function updateCityStats() {
+  const n = features.length;
+  const proxes = features.map(f => f.properties.prox).sort((a, b) => a - b);
+  const opps = features.map(f => f.properties.opp).sort((a, b) => a - b);
+  const incN = features.filter(f => f.properties.type === "inclusion").length;
+  const spatN = features.filter(f => f.properties.type === "spatial isolation").length;
+  const socN = features.filter(f => f.properties.type === "social isolation").length;
+  const totN = features.filter(f => f.properties.type === "total isolation").length;
+  document.getElementById("s-hex").textContent = n;
+  document.getElementById("s-prox").textContent = fmtK(proxes[Math.floor(n / 2)]);
+  document.getElementById("s-opp").textContent = fmtK(opps[Math.floor(n / 2)]);
+  document.getElementById("s-inc").textContent = (incN / n * 100).toFixed(1) + "%";
+  document.getElementById("s-spat").textContent = (spatN / n * 100).toFixed(1) + "%";
+  document.getElementById("s-soc").textContent = (socN / n * 100).toFixed(1) + "%";
+  document.getElementById("s-tot").textContent = (totN / n * 100).toFixed(1) + "%";
 }
 
 // TOOLTIP
@@ -543,7 +551,7 @@ async function showCityView(city){
   features=loaded;
   const lngs=features.flatMap(f=>f.geometry.coordinates.flatMap(r=>r.map(p=>p[0])));
   const lats=features.flatMap(f=>f.geometry.coordinates.flatMap(r=>r.map(p=>p[1])));
-  const pad=window.innerWidth<=1024?[10,10]:[2,2];
+  const pad=window.innerWidth<=1024?[2,2]:[2,2];
   cityLeaflet.fitBounds([[Math.min(...lats),Math.min(...lngs)],[Math.max(...lats),Math.max(...lngs)]],{padding:pad,animate:false});
   resizeCanvas();drawCanvas();buildScatter();updateCityStats();
 }

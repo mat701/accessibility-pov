@@ -82,7 +82,7 @@
 <div id="stat-popover" class="stat-popover"></div>
 
 <header>
-  <h1><a id="title-link" href="#/">Urban Accessibility <span>P.O.V.</span></a></h1>
+  <h1><a id="title-link" href="#/"><img src="favicon.ico" alt="Home"/> Urban Accessibility <span>P.O.V.</span></a></h1>
   <span id="header-sub" data-i18n="header_sub">Proximity · Opportunity · Value</span>
   <button id="back-btn" data-i18n="back_btn">World Map</button>
   <div class="header-right">
@@ -122,7 +122,7 @@
       <div class="info-box" id="info-box-landing">
         <button class="info-box-close" id="close-info-box" title="Close">✕</button>
         <b data-i18n="infobox_title">Urban Accessibility P.O.V.</b>
-        <span data-i18n="infobox_text">Each city is mapped across two dimensions.</span>
+        <span data-i18n-html="infobox_text">Each city is mapped across two dimensions.</span>
         <div class="info-box-cite">
           <span data-i18n="infobox_cite">Based on</span> <a href="https://doi.org/10.1140/epjds/s13688-026-00623-8" target="_blank" rel="noopener">Bruno et al., EPJ Data Science (2026)</a>
         </div>
@@ -175,6 +175,9 @@
         <div class="stat-row"><span class="stat-label"><span data-i18n="stat_prox">Median proximity</span> <button class="stat-hint-btn" data-hint-key="stat_prox_hint">ⓘ</button></span><span class="stat-value" id="s-prox">—</span></div>
         <div class="stat-row"><span class="stat-label"><span data-i18n="stat_opp">Median opportunity</span> <button class="stat-hint-btn" data-hint-key="stat_opp_hint">ⓘ</button></span><span class="stat-value" id="s-opp">—</span></div>
         <div class="stat-row"><span class="stat-label" data-i18n="stat_inclusion">Inclusion rate</span><span class="stat-value" id="s-inc">—</span></div>
+        <div class="stat-row"><span class="stat-label" data-i18n="stat_spatial">Spatial isolation</span><span class="stat-value" id="s-spat">—</span></div>
+        <div class="stat-row"><span class="stat-label" data-i18n="stat_social">Social isolation</span><span class="stat-value" id="s-soc">—</span></div>
+        <div class="stat-row"><span class="stat-label" data-i18n="stat_total">Total isolation</span><span class="stat-value" id="s-tot">—</span></div>
       </div>
       <div>
         <p class="panel-title" data-i18n="selected_hex_title">Selected hexagon</p>

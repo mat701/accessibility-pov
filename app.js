@@ -184,7 +184,8 @@ const ALL_CITIES = Object.keys(CITY_FILES);
 // STATE
 // ─────────────────────────────────────────────────────────────────────────────
 let features=[], selectedId=null, hoveredId=null, hiddenTypes=new Set();
-const HEX_ALPHA=0.8, HEX_ALPHA_DIM=0.15;
+let HEX_ALPHA=0.7;
+const HEX_ALPHA_DIM=0.15;
 const TYPE_COLOR={"inclusion":"#4caf50","spatial isolation":"#2196f3","social isolation":"#ffc107","total isolation":"#f44336"};
 const TYPE_COLOR_DIM={"inclusion":"#c8e6c9","spatial isolation":"#bbdefb","social isolation":"#fff9c4","total isolation":"#ffcdd2"};
 function getTypeDesc(type){const m={"inclusion":"type_desc_inclusion","spatial isolation":"type_desc_spatial","social isolation":"type_desc_social","total isolation":"type_desc_total"};return t(m[type]||"");}
@@ -269,6 +270,11 @@ citySideToggle.addEventListener("click", () => {
     redrawCanvas();
     if (features.length) buildScatter();
   }, 50);
+});
+
+document.getElementById("alpha-slider").addEventListener("input", e => {
+  HEX_ALPHA = e.target.value / 100;
+  drawCanvas();
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
